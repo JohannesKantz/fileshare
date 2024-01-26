@@ -28,7 +28,7 @@ export default function RootLayout({
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <Header />
+                        <Header className="mb-12 md:mb-24" />
                         {children}
                         <Toaster />
                     </ThemeProvider>

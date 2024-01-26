@@ -16,6 +16,7 @@ import DeleteButton from "./DeleteButton";
 import { Download } from "lucide-react";
 import DownloadButton from "./DownloadButton";
 import ClientOnly from "@/components/ClientOnly";
+import { deleteExpiredFiles } from "@/lib/server/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function page() {
     }
     if (!session.user) return;
 
+    await deleteExpiredFiles();
     const files = await prisma.file.findMany({
         where: {
             userId: session.user.id,
@@ -34,10 +36,15 @@ export default async function page() {
     });
 
     return (
-        <div className="container flex min-h-screen flex-col items-center p-24">
-            <h2 className="self-start">Profile Page</h2>
+        <div className="container flex flex-col items-center">
+            <h1 className="mb-4 self-start md:mb-12 md:text-2xl">
+                Account: {session.user.name}
+            </h1>
 
-            <FileTable files={files} />
+            <div className="w-full">
+                <h2 className="font-bold">Files</h2>
+                <FileTable files={files} />
+            </div>
         </div>
     );
 }
