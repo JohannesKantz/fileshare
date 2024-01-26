@@ -113,3 +113,17 @@ export async function deleteFile(s3Key: string) {
         console.error(e);
     }
 }
+
+export async function deleteExpiredFiles() {
+    const files = await prisma.file.findMany({
+        where: {
+            expiresAt: {
+                lt: new Date(),
+            },
+        },
+    });
+
+    for (const file of files) {
+        await deleteFile(file.s3Key);
+    }
+}

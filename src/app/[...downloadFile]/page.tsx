@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
-import { getSignedUrlDownload } from "@/lib/server/actions";
+import { deleteExpiredFiles, getSignedUrlDownload } from "@/lib/server/actions";
 import { formatFileSize } from "@/lib/utils";
 import React from "react";
 
@@ -12,6 +12,7 @@ export default async function page({
 }) {
     const fileDownloadKey = params.downloadFile.toString();
 
+    await deleteExpiredFiles();
     const file = await prisma.file.findUnique({
         where: {
             downloadKey: fileDownloadKey,
