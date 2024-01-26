@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
 import { deleteExpiredFiles, getSignedUrlDownload } from "@/lib/server/actions";
 import { formatFileSize } from "@/lib/utils";
+import { File } from "@prisma/client";
+import { Separator } from "@/components/ui/separator";
+import { FileIcon } from "lucide-react";
 import React from "react";
 
 export default async function page({
@@ -27,19 +30,35 @@ export default async function page({
 
     return (
         <main className="container flex flex-col items-center justify-center">
-            <Card>
+            <Card className="w-full md:w-1/2">
                 <CardHeader>Download File</CardHeader>
                 <CardContent className="flex flex-col gap-4">
                     <div>
-                        <p>Filename: {file.name}</p>
-                        <p>FileSize: {formatFileSize(file.size)}</p>
+                        <File file={file} />
                     </div>
-
-                    <a href={downloadURL} download={file.name}>
-                        <Button>Download</Button>
-                    </a>
+                    <Separator className="my-2" />
+                    <div className="text-right">
+                        <a href={downloadURL} download={file.name}>
+                            <Button>Download</Button>
+                        </a>
+                    </div>
                 </CardContent>
             </Card>
         </main>
+    );
+}
+
+function File({ file }: { file: File }) {
+    return (
+        <Card className="relative w-44">
+            <CardHeader></CardHeader>
+            <CardContent className="flex flex-col items-center gap-2">
+                <FileIcon />
+                <p className="text-gray-600">{file.name}</p>
+                <p className="text-sm text-gray-500">
+                    {formatFileSize(file.size)}
+                </p>
+            </CardContent>
+        </Card>
     );
 }
