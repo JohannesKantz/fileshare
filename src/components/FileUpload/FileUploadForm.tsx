@@ -9,6 +9,18 @@ import { formatDownloadSecounds, formatFileSize } from "@/lib/utils";
 import FileDownloadLink from "./FileDownloadLink";
 import ClientOnly from "../ClientOnly";
 import { Separator } from "../ui/separator";
+import FileUploadFormTimeSelect from "./FileUploadFormTimeSelect";
+
+const DeleteAfterOptions = [
+    { value: `${1000 * 60 * 60 * 24 * 1}`, label: "1 day" },
+    { value: `${1000 * 60 * 60 * 24 * 3}`, label: "3 days" },
+    { value: `${1000 * 60 * 60 * 24 * 7}`, label: "1 week" },
+    { value: `${1000 * 60 * 60 * 24 * 30}`, label: "1 month" },
+    { value: `${1000 * 60 * 60 * 24 * 90}`, label: "3 months" },
+    { value: `${1000 * 60 * 60 * 24 * 365}`, label: "1 year" },
+    { value: "0", label: "Never" },
+];
+const defaultDeleteAfter = 0;
 
 export default function FileUploadForm({
     file,
@@ -30,6 +42,10 @@ export default function FileUploadForm({
         React.useState<number>();
     const [uploading, setUploading] = React.useState<boolean>(false);
 
+    const [expiresAtSeconds, setExpiresAtSeconds] = React.useState<string>(
+        DeleteAfterOptions[defaultDeleteAfter].value
+    );
+
     return (
         <>
             <Card className="mx-auto md:w-1/2">
@@ -43,6 +59,8 @@ export default function FileUploadForm({
                             showX={!result || !!uploading}
                         />
                     </div>
+
+                    <Separator className="my-4" />
 
                     <div>
                         {!result ? (
@@ -65,38 +83,58 @@ export default function FileUploadForm({
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex justify-end">
-                                        <Button
-                                            onClick={async () => {
-                                                console.log("click upload");
-                                                setUploading(true);
-                                                if (file) {
-                                                    console.log(
-                                                        "uploading file ..."
-                                                    );
-                                                    const result = await upload(
-                                                        {
-                                                            file: file,
-                                                            onProgress: (
-                                                                progress,
-                                                                estimatedRemainingTime
-                                                            ) => {
-                                                                setProgress(
-                                                                    progress
-                                                                );
-                                                                setEstimatedRemainingTime(
+                                    <div>
+                                        <FileUploadFormTimeSelect
+                                            options={DeleteAfterOptions}
+                                            defaultDeleteAfter={
+                                                defaultDeleteAfter
+                                            }
+                                            onChange={setExpiresAtSeconds}
+                                        />
+                                        <div className="flex justify-end">
+                                            <Button
+                                                onClick={async () => {
+                                                    console.log("click upload");
+                                                    setUploading(true);
+                                                    const expiresAt =
+                                                        expiresAtSeconds === "0"
+                                                            ? null
+                                                            : new Date(
+                                                                  new Date().getTime() +
+                                                                      parseInt(
+                                                                          expiresAtSeconds
+                                                                      )
+                                                              );
+                                                    console.log(expiresAt);
+
+                                                    if (file) {
+                                                        console.log(
+                                                            "uploading file ..."
+                                                        );
+                                                        const result =
+                                                            await upload({
+                                                                file: file,
+                                                                onProgress: (
+                                                                    progress,
                                                                     estimatedRemainingTime
-                                                                );
-                                                            },
-                                                        }
-                                                    );
-                                                    setResult(result);
-                                                }
-                                                setUploading(false);
-                                            }}
-                                        >
-                                            Upload
-                                        </Button>
+                                                                ) => {
+                                                                    setProgress(
+                                                                        progress
+                                                                    );
+                                                                    setEstimatedRemainingTime(
+                                                                        estimatedRemainingTime
+                                                                    );
+                                                                },
+                                                                expiresAt,
+                                                            });
+                                                        setResult(result);
+                                                    }
+                                                    setUploading(false);
+                                                }}
+                                            >
+                                                Upload
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                             </>
@@ -124,7 +162,6 @@ function FileUploadSuccess({
 }) {
     return (
         <div>
-            <Separator className="mb-6 mt-3" />
             {result.status === "error" ? (
                 <>
                     <p>Something went wrong</p>
@@ -141,7 +178,7 @@ function FileUploadSuccess({
                 <div className="flex flex-col gap-2">
                     <p className="text-green-500">Upload Successful</p>
                     <ClientOnly>
-                        <FileDownloadLink downloadKey={result.downloadKey} />
+                        <FileDownloadLink downloadKey={result.downloadKey!} />
                     </ClientOnly>
                     <div className="flex justify-end">
                         <Button

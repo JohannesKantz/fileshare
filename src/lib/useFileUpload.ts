@@ -14,7 +14,7 @@ export default function useFileUpload() {
     }: {
         file: File;
         onProgress?: OnProgress;
-        expiresAt?: Date;
+        expiresAt?: Date | null;
     }) {
         try {
             const s3Key = await getS3Key(file.name);
@@ -61,7 +61,7 @@ export default function useFileUpload() {
 export interface UploadResult {
     status: "success" | "error";
     error?: string;
-    name: string;
+    name?: string;
     downloadKey: string;
 }
 
