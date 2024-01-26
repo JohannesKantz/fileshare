@@ -8,7 +8,7 @@ export default function SignInButton({
         <form
             action={async () => {
                 "use server";
-                await signIn();
+                await signIn("google");
             }}
         >
             {children}
