@@ -46,6 +46,28 @@ export default function FileUploadForm({
         DeleteAfterOptions[defaultDeleteAfter].value
     );
 
+    async function handleUpload() {
+        setUploading(true);
+        const expiresAt =
+            expiresAtSeconds === "0"
+                ? null
+                : new Date(new Date().getTime() + parseInt(expiresAtSeconds));
+        console.log(expiresAt);
+
+        if (file) {
+            const result = await upload({
+                file: file,
+                onProgress: (progress, estimatedRemainingTime) => {
+                    setProgress(progress);
+                    setEstimatedRemainingTime(estimatedRemainingTime);
+                },
+                expiresAt,
+            });
+            setResult(result);
+        }
+        setUploading(false);
+    }
+
     return (
         <>
             <Card className="mx-auto md:w-1/2">
@@ -91,47 +113,14 @@ export default function FileUploadForm({
                                             }
                                             onChange={setExpiresAtSeconds}
                                         />
-                                        <div className="flex justify-end">
-                                            <Button
-                                                onClick={async () => {
-                                                    console.log("click upload");
-                                                    setUploading(true);
-                                                    const expiresAt =
-                                                        expiresAtSeconds === "0"
-                                                            ? null
-                                                            : new Date(
-                                                                  new Date().getTime() +
-                                                                      parseInt(
-                                                                          expiresAtSeconds
-                                                                      )
-                                                              );
-                                                    console.log(expiresAt);
-
-                                                    if (file) {
-                                                        console.log(
-                                                            "uploading file ..."
-                                                        );
-                                                        const result =
-                                                            await upload({
-                                                                file: file,
-                                                                onProgress: (
-                                                                    progress,
-                                                                    estimatedRemainingTime
-                                                                ) => {
-                                                                    setProgress(
-                                                                        progress
-                                                                    );
-                                                                    setEstimatedRemainingTime(
-                                                                        estimatedRemainingTime
-                                                                    );
-                                                                },
-                                                                expiresAt,
-                                                            });
-                                                        setResult(result);
-                                                    }
-                                                    setUploading(false);
-                                                }}
+                                        <div className="flex justify-end gap-6">
+                                            <button
+                                                onClick={resetFileUpload}
+                                                className=" text-slate-300 text-opacity-60"
                                             >
+                                                Cancel
+                                            </button>
+                                            <Button onClick={handleUpload}>
                                                 Upload
                                             </Button>
                                         </div>
