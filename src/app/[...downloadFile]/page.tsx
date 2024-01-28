@@ -23,7 +23,11 @@ export default async function page({
     });
 
     if (!file) {
-        return <div>File not found</div>;
+        return (
+            <main className="container flex flex-col items-center justify-center">
+                <div>File not found</div>
+            </main>
+        );
     }
 
     const downloadURL = await getSignedUrlDownload(file.s3Key);
