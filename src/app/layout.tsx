@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "next-auth/react";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/toaster";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -42,6 +43,7 @@ export default function RootLayout({
                     >
                         <Header className="mb-12 md:mb-24" />
                         {children}
+                        <Analytics />
                         <Toaster />
                     </ThemeProvider>
                 </SessionProvider>
