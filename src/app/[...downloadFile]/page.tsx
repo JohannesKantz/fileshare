@@ -39,7 +39,7 @@ export default async function page({
                     <h2 className="text-xl">Download File</h2>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                    <div>
+                    <div className="flex justify-center">
                         <File file={file} />
                     </div>
                     <Separator className="my-2" />
