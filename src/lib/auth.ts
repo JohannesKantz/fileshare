@@ -1,4 +1,4 @@
-import NextAuth, { DefaultSession } from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -22,17 +22,13 @@ export const {
     },
     callbacks: {
         async session({ session, token }) {
-            //console.log("session callback", { session, token });
-
             if (session.user && token.sub) {
                 session.user.id = token.id as string;
             }
 
             return session;
         },
-        jwt: async ({ token, user, account }) => {
-            // console.log("JWT callback", { token, user, account });
-
+        jwt: async ({ token, user }) => {
             if (user?.id) {
                 token.id = user.id;
             }
