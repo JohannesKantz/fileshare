@@ -11,6 +11,7 @@ import { auth } from "../auth";
 import prisma from "../prisma";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
+import { track } from "@vercel/analytics/react";
 
 export async function getS3Key(fileName: string) {
     let s3Key;
@@ -49,9 +50,10 @@ export async function checkIfFileExists(s3Key: string) {
     }
 }
 
-export async function getSignedUrlDownload(s3Key: string) {
+export async function getSignedUrlDownload(s3Key: string, fileName: string) {
     try {
-        return getSignedUrlToDownload(S3_BUCKET, s3Key);
+        trackView(s3Key);
+        return getSignedUrlToDownload(S3_BUCKET, s3Key, fileName);
     } catch (e) {
         console.error(e);
     }
@@ -126,4 +128,17 @@ export async function deleteExpiredFiles() {
     for (const file of files) {
         await deleteFile(file.s3Key);
     }
+}
+
+async function trackView(s3Key: string) {
+    await prisma.file.update({
+        where: {
+            s3Key: s3Key,
+        },
+        data: {
+            views: {
+                increment: 1,
+            },
+        },
+    });
 }
