@@ -1,7 +1,5 @@
 import {
     S3Client,
-    ListBucketsCommand,
-    ListObjectsV2Command,
     GetObjectCommand,
     PutObjectCommand,
     DeleteObjectCommand,
@@ -37,6 +35,7 @@ const S3 = new S3Client({
         accessKeyId: S3_ACCESS_KEY_ID,
         secretAccessKey: S3_SECRET_ACCESS_KEY,
     },
+    forcePathStyle: true,
 });
 
 export { S3 };

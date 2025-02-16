@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
 import { deleteExpiredFiles, getSignedUrlDownload } from "@/lib/server/actions";
 import { formatFileSize } from "@/lib/utils";
-import { File } from "@prisma/client";
+import type { File } from "@prisma/client";
 import { Separator } from "@/components/ui/separator";
 import { FileIcon } from "lucide-react";
 import React from "react";

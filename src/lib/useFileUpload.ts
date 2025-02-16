@@ -1,3 +1,4 @@
+import { useToast } from "@/components/ui/use-toast";
 import {
     checkIfFileExists,
     getS3Key,
@@ -7,6 +8,8 @@ import {
 import axios from "axios";
 
 export default function useFileUpload() {
+    const { toast } = useToast();
+
     async function upload({
         file,
         onProgress,
@@ -21,10 +24,21 @@ export default function useFileUpload() {
             const downloadKey = s3Key.split("/")[0];
             const signedUrl = await getSignedUrl(s3Key);
 
-            const response = await uploadFile(
+            await uploadFile(
                 file,
                 signedUrl,
-                onProgress || (() => {})
+                onProgress || (() => {}),
+                (error) => {
+                    toast({
+                        title: "Upload failed",
+                        description:
+                            "An error occured while uploading the file.",
+                        style: {
+                            backgroundColor: "red",
+                            color: "white",
+                        },
+                    });
+                }
             );
 
             const fileExists = await checkIfFileExists(s3Key);
@@ -71,16 +85,30 @@ export type OnProgress = (
 ) => void;
 export type Upload = ReturnType<typeof useFileUpload>["upload"];
 
-function uploadFile(file: File, url: string, onProgress: OnProgress) {
+async function uploadFile(
+    file: File,
+    url: string,
+    onProgress: OnProgress,
+    onError: (error: any) => void = () => {}
+) {
     onProgress(0);
     const startTime = Date.now();
-    return axios.put(url, file, {
-        onUploadProgress: (e) => {
-            const elapsedTime = Date.now() - startTime;
-            const uploadSpeed = e.loaded / elapsedTime;
-            const estimatedRemainingTime =
-                (e.total! - e.loaded) / uploadSpeed / 1000;
-            onProgress((e.loaded / e.total!) * 100, estimatedRemainingTime);
-        },
-    });
+    try {
+        await axios.put(url, file, {
+            headers: {
+                "Content-Type": file.type,
+            },
+            onUploadProgress: (e) => {
+                const elapsedTime = Date.now() - startTime;
+                const uploadSpeed = e.loaded / elapsedTime;
+                const estimatedRemainingTime =
+                    (e.total! - e.loaded) / uploadSpeed / 1000;
+                onProgress((e.loaded / e.total!) * 100, estimatedRemainingTime);
+            },
+        });
+    } catch (error) {
+        console.error("Upload failed", error);
+        onError(error);
+        throw error;
+    }
 }

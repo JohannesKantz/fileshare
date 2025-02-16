@@ -52,7 +52,6 @@ export default function FileUploadForm({
             expiresAtSeconds === "0"
                 ? null
                 : new Date(new Date().getTime() + parseInt(expiresAtSeconds));
-        console.log(expiresAt);
 
         if (file) {
             const result = await upload({
