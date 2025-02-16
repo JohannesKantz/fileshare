@@ -48,10 +48,18 @@ export function getSignedUrlToUpload(bucket: string, key: string) {
     );
 }
 
-export function getSignedUrlToDownload(bucket: string, key: string) {
+export function getSignedUrlToDownload(
+    bucket: string,
+    key: string,
+    fileName: string
+) {
     return getSignedUrl(
         S3,
-        new GetObjectCommand({ Bucket: bucket, Key: key }),
+        new GetObjectCommand({
+            Bucket: bucket,
+            Key: key,
+            ResponseContentDisposition: `attachment; filename="${fileName}"`,
+        }),
         { expiresIn: 3600 }
     );
 }

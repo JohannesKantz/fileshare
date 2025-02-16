@@ -66,6 +66,7 @@ model File {
   downloadKey String    @unique
   createdAt   DateTime  @default(now())
   expiresAt   DateTime?
+  views       Int       @default(0)
   userId      String?
   user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
