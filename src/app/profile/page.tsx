@@ -35,14 +35,19 @@ export default async function page() {
         },
     });
 
+    const totalSize = files.reduce((acc, file) => acc + file.size, 0);
+
     return (
         <div className="container flex flex-col items-center">
             <h1 className="mb-4 self-start md:mb-12 md:text-2xl">
-                Account: {session.user.name}
+                Account: <span className="font-bold">{session.user.name}</span>
             </h1>
 
             <div className="w-full">
-                <h2 className="font-bold">Files</h2>
+                <h2 className="text-2xl font-bold">Your Files</h2>
+                <p className="text-slate-500">
+                    Total size: {formatFileSize(totalSize)}
+                </p>
                 <FileTable files={files} />
             </div>
         </div>
@@ -59,6 +64,7 @@ function FileTable({ files }: { files: Array<File> }) {
                     <TableHead>Size</TableHead>
                     <TableHead>upload date</TableHead>
                     <TableHead>expiry date</TableHead>
+                    <TableHead>Views</TableHead>
                     <TableHead>Download Link</TableHead>
                     <TableHead className="text-end">Delete</TableHead>
                 </TableRow>
@@ -77,6 +83,9 @@ function FileTable({ files }: { files: Array<File> }) {
                         </TableCell>
                         <TableCell className="text-slate-500">
                             {file.expiresAt?.toLocaleDateString() ?? "never"}
+                        </TableCell>
+                        <TableCell className="text-slate-500">
+                            {file.views}
                         </TableCell>
 
                         <TableCell>
